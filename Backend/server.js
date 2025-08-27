@@ -17,7 +17,7 @@ const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
     origin: process.env.NODE_ENV === 'production' ? 
-      process.env.CLIENT_URL : "http://localhost:5173",
+      process.env.CLIENT_URL : "http://localhost:5174",
     methods: ["GET", "POST"],
     credentials: true
   }
@@ -29,7 +29,7 @@ connectDB();
 // Middleware
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' ? 
-    process.env.CLIENT_URL : "http://localhost:5173",
+    process.env.CLIENT_URL : "http://localhost:5174",
   credentials: true
 }));
 app.use(express.json());

@@ -46,30 +46,37 @@ const LoginPage = () => {
   };
 
   const handleVerifyOTP = async (e) => {
-    e.preventDefault();
-    
-    const formattedPhone = formatPhoneNumber(phoneNumber);
-    
-    try {
-      dispatch(loginStart());
-      const response = await verifyOTP({ 
-        phoneE164: formattedPhone, 
-        otp,
-        ...(displayName && { displayName })
-      }).unwrap();
-      
-      dispatch(loginSuccess(response));
-      toast.success('Login successful!');
-    } catch (error) {
-      dispatch(loginFailure());
-      if (error.data?.message === 'Display name is required for new users') {
-        setIsNewUser(true);
-        toast.error('Please enter your display name');
-      } else {
-        toast.error(error.data?.message || 'Invalid OTP');
-      }
+  e.preventDefault();
+  const formattedPhone = formatPhoneNumber(phoneNumber);
+
+  try {
+    dispatch(loginStart());
+
+    // Always include displayName if it's filled
+    const payload = {
+      phoneE164: formattedPhone,
+      otp: otp.toString(),
+      ...(displayName && { displayName })
+    };
+
+    const response = await verifyOTP(payload).unwrap();
+
+    dispatch(loginSuccess(response));
+    toast.success('Login successful!');
+  } catch (error) {
+    dispatch(loginFailure());
+
+    if (error.data?.message === 'Display name is required for new users') {
+      // Show displayName input and keep OTP so user just enters name
+      setIsNewUser(true);
+      toast.error('Please enter your display name to continue');
+    } else {
+      toast.error(error.data?.message || 'Invalid OTP');
     }
-  };
+  }
+};
+
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-white px-4">

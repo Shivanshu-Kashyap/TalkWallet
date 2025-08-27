@@ -5,7 +5,7 @@ const otpSchema = new mongoose.Schema({
     type: String,
     required: true,
     validate: {
-      validator: function(v) {
+      validator: function (v) {
         return /^\+[1-9]\d{1,14}$/.test(v);
       }
     }
@@ -23,12 +23,16 @@ const otpSchema = new mongoose.Schema({
     type: Number,
     default: 0,
     max: 3
+  },
+  used: {
+    type: Boolean,
+    default: false
   }
 }, {
   timestamps: true
 });
 
 otpSchema.index({ phoneE164: 1 });
-otpSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+// ❌ removed the TTL index, Mongo won't auto-delete now
 
 module.exports = mongoose.model('OTP', otpSchema);

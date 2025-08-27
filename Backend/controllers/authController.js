@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const { validationResult } = require('express-validator');
 const User = require('../models/User');
+const OTP = require('../models/OTP');
 const otpService = require('../services/otpService');
 
 const generateTokens = (userId) => {
@@ -20,7 +21,10 @@ const startOTP = async (req, res) => {
     const result = await otpService.sendOTP(phoneE164);
 
     if (result.success) {
-      res.json({ message: result.message, ...(process.env.NODE_ENV === 'development' && { otp: result.otp }) });
+      res.json({
+        message: result.message,
+        ...(process.env.NODE_ENV === 'development' && { otp: result.otp })
+      });
     } else {
       res.status(400).json({ message: result.message });
     }
@@ -34,6 +38,7 @@ const verifyOTP = async (req, res) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      console.log("Validation errors:", errors.array());
       return res.status(400).json({ errors: errors.array() });
     }
 
@@ -44,8 +49,8 @@ const verifyOTP = async (req, res) => {
       return res.status(400).json({ message: result.message });
     }
 
-    // Find or create user
     let user = await User.findOne({ phoneE164 });
+
     if (!user) {
       if (!displayName) {
         return res.status(400).json({ message: 'Display name is required for new users' });
@@ -65,8 +70,11 @@ const verifyOTP = async (req, res) => {
 
     await user.save();
 
+    // ✅ Mark OTP as used only after successful user save
+    await OTP.updateOne({ _id: result.otpRecord._id }, { $set: { used: true } });
+
     const tokens = generateTokens(user._id);
-    
+
     res.json({
       message: 'Authentication successful',
       user: {

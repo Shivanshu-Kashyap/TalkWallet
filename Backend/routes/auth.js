@@ -18,6 +18,7 @@ router.post('/otp/verify', [
     .matches(/^\+[1-9]\d{1,14}$/)
     .withMessage('Phone number must be in E.164 format'),
   body('otp')
+    .isString()
     .isLength({ min: 6, max: 6 })
     .withMessage('OTP must be 6 digits'),
   body('displayName')
