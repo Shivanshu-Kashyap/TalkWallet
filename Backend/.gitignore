@@ -117,4 +117,5 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
+config/gen-lang-client-0728384905-a7bb1f8b40a1.json
 # End of https://mrkandreev.name/snippets/gitignore-generator/#Node
