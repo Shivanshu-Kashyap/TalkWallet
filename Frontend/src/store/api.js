@@ -132,6 +132,53 @@ confirmMapping: builder.mutation({
   }),
   invalidatesTags: ['OrderItem', 'Receipt'],
 }),
+
+// Settlement endpoints
+calculateSettlement: builder.mutation({
+  query: (headingId) => ({
+    url: `/headings/${headingId}/settle`,
+    method: 'POST',
+  }),
+  invalidatesTags: ['Settlement'],
+}),
+getSettlement: builder.query({
+  query: (headingId) => `/headings/${headingId}/settlement`,
+  providesTags: ['Settlement'],
+}),
+confirmPayment: builder.mutation({
+  query: ({ settlementId, transactionId }) => ({
+    url: `/settlements/${settlementId}/transactions/${transactionId}/confirm`,
+    method: 'POST',
+  }),
+  invalidatesTags: ['Settlement', 'Dashboard'],
+}),
+getUserSettlements: builder.query({
+  query: (params = {}) => ({
+    url: '/settlements/user',
+    params,
+  }),
+  providesTags: ['Settlement'],
+}),
+
+// Dashboard endpoints
+getDashboardSummary: builder.query({
+  query: () => '/dashboard/summary',
+  providesTags: ['Dashboard'],
+}),
+getTransactionHistory: builder.query({
+  query: (params = {}) => ({
+    url: '/dashboard/history',
+    params,
+  }),
+  providesTags: ['Dashboard'],
+}),
+getSpendingAnalytics: builder.query({
+  query: (params = {}) => ({
+    url: '/dashboard/analytics',
+    params,
+  }),
+  providesTags: ['Dashboard'],
+}),
   }),
 });
 
@@ -153,4 +200,11 @@ export const {
   useUploadReceiptMutation,
   useGetReceiptsQuery,
   useConfirmMappingMutation,   
+  useCalculateSettlementMutation,
+  useGetSettlementQuery,
+  useConfirmPaymentMutation,
+  useGetUserSettlementsQuery,
+  useGetDashboardSummaryQuery,
+  useGetTransactionHistoryQuery,
+  useGetSpendingAnalyticsQuery,
 } = api;

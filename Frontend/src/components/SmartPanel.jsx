@@ -22,6 +22,7 @@ import {
   useGetReceiptsQuery
 } from '../store/api';
 import { setOrderItems } from '../store/slices/messageSlice';
+import SettlementPanel from './SettlementPanel';
 import toast from 'react-hot-toast';
 
 const SmartPanel = ({ heading, groupId, onClose }) => {
@@ -40,6 +41,7 @@ const SmartPanel = ({ heading, groupId, onClose }) => {
   const [addItemPrice] = useAddItemPriceMutation();
   const [assignPayers] = useAssignPayersMutation();
   const [uploadReceipt, { isLoading: uploadingReceipt }] = useUploadReceiptMutation();
+const showSettlement = heading.status === 'SETTLED' || heading.status === 'PROCESSING' || heading.status === 'COMPLETED';
 
   useEffect(() => {
     if (orderItemsData?.orderItems) {
@@ -120,6 +122,12 @@ const SmartPanel = ({ heading, groupId, onClose }) => {
   const pricedItems = orderItems.filter(item => item.isPriceConfirmed).length;
   const uniqueUsers = Object.keys(groupedItems).length;
 
+  const tabs = [
+    { id: 'orders', label: 'Orders' },
+    { id: 'receipts', label: `Receipts (${receiptsData?.receipts?.length || 0})` },
+    ...(showSettlement ? [{ id: 'settlement', label: 'Settlement' }] : [])
+  ];
+
   return (
     <div className="bg-gradient-to-r from-green-50 to-blue-50 border-b border-green-200">
       {/* Header */}
@@ -187,6 +195,24 @@ const SmartPanel = ({ heading, groupId, onClose }) => {
         </div>
       </div>
 
+      {/* Tabs */}
+        <div className="flex space-x-4 mt-3">
+          {tabs.map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`px-3 py-1 text-sm rounded-full transition-colors ${
+                activeTab === tab.id 
+                  ? 'bg-green-500 text-white' 
+                  : 'text-green-700 hover:bg-green-100'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+
       {/* Content */}
       <div className="max-h-96 overflow-y-auto">
         {activeTab === 'orders' && (
@@ -213,6 +239,16 @@ const SmartPanel = ({ heading, groupId, onClose }) => {
             handleFileUpload={handleFileUpload}
             uploadingReceipt={uploadingReceipt}
           />
+        )}
+
+        {activeTab === 'settlement' && (
+          <div className="p-4">
+            <SettlementPanel 
+              heading={heading}
+              groupId={groupId}
+              userRole={user?.role}
+            />
+          </div>
         )}
       </div>
 

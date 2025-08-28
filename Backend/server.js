@@ -14,6 +14,8 @@ const headingRoutes = require('./routes/headings');
 const orderRoutes = require('./routes/orders');
 const priceRoutes = require('./routes/prices'); // New
 const receiptRoutes = require('./routes/receipts'); // New
+const settlementRoutes = require('./routes/settlements');
+const dashboardRoutes = require('./routes/dashboard');
 
 const app = express();
 const server = http.createServer(app);
@@ -53,10 +55,13 @@ app.use('/api/headings', orderRoutes);
 app.use('/api/items', priceRoutes); // New
 app.use('/api/headings', receiptRoutes); // New
 app.use('/api/receipts', receiptRoutes); // New
+app.use('/api/headings', settlementRoutes);
+app.use('/api/settlements', settlementRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', message: 'SmartSplit API is running' });
+  res.json({ status: 'OK', message: 'TalkWallet API is running' });
 });
 
 // Socket.IO

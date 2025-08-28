@@ -85,7 +85,7 @@ const LoginPage = () => {
           <div className="mx-auto h-16 w-16 bg-primary-500 rounded-full flex items-center justify-center mb-6">
             <span className="text-2xl font-bold text-white">₹</span>
           </div>
-          <h2 className="text-3xl font-bold text-gray-900">SmartSplit</h2>
+          <h2 className="text-3xl font-bold text-gray-900">TalkWallet</h2>
           <p className="mt-2 text-gray-600">
             {step === 'phone' ? 'Enter your phone number to continue' : 'Enter the verification code'}
           </p>

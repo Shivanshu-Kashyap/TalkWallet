@@ -62,7 +62,7 @@ const AddMemberModal = ({ groupId, onClose }) => {
               placeholder="Enter phone number"
             />
             <p className="mt-1 text-sm text-gray-500">
-              The user must be registered with SmartSplit
+              The user must be registered with TalkWallet
             </p>
           </div>
 

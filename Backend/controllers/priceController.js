@@ -93,7 +93,7 @@ const uploadReceipt = async (req, res) => {
     const uploadResult = await new Promise((resolve, reject) => {
       cloudinary.uploader.upload_stream(
         {
-          folder: 'smartsplit/receipts',
+          folder: 'TalkWallet/receipts',
           resource_type: 'image'
         },
         (error, result) => {

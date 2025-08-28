@@ -37,7 +37,7 @@ class OTPService {
         return { success: true, message: 'OTP sent successfully', otp };
       } else {
         await client.messages.create({
-          body: `Your SmartSplit verification code is: ${otp}. Valid for 5 minutes.`,
+          body: `Your TalkWallet verification code is: ${otp}. Valid for 5 minutes.`,
           from: process.env.TWILIO_PHONE_NUMBER,
           to: phoneE164
         });
