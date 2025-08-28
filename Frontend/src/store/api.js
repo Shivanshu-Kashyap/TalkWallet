@@ -96,7 +96,42 @@ export const api = createApi({
       }),
       invalidatesTags: ['OrderItem'],
     }),
-
+    addItemPrice: builder.mutation({
+  query: ({ itemId, price }) => ({
+    url: `/items/${itemId}/price`,
+    method: 'POST',
+    body: { price },
+  }),
+  invalidatesTags: ['OrderItem'],
+}),
+assignPayers: builder.mutation({
+  query: ({ itemId, payers }) => ({
+    url: `/items/${itemId}/payers`,
+    method: 'POST',
+    body: { payers },
+  }),
+  invalidatesTags: ['OrderItem'],
+}),
+uploadReceipt: builder.mutation({
+  query: ({ headingId, formData }) => ({
+    url: `/headings/${headingId}/receipts`,
+    method: 'POST',
+    body: formData,
+  }),
+  invalidatesTags: ['Receipt'],
+}),
+getReceipts: builder.query({
+  query: (headingId) => `/headings/${headingId}/receipts`,
+  providesTags: ['Receipt'],
+}),
+confirmMapping: builder.mutation({
+  query: ({ mappingId, confirmed, customPrice }) => ({
+    url: `/receipts/mappings/${mappingId}/confirm`,
+    method: 'POST',
+    body: { confirmed, customPrice },
+  }),
+  invalidatesTags: ['OrderItem', 'Receipt'],
+}),
   }),
 });
 
@@ -112,5 +147,10 @@ export const {
   useCreateHeadingMutation,
   useGetActiveHeadingQuery,
   useGetOrderItemsQuery,         
-  useDeleteOrderItemMutation,    
+  useDeleteOrderItemMutation,
+  useAddItemPriceMutation,
+  useAssignPayersMutation,
+  useUploadReceiptMutation,
+  useGetReceiptsQuery,
+  useConfirmMappingMutation,   
 } = api;

@@ -12,6 +12,8 @@ const groupRoutes = require('./routes/groups');
 const messageRoutes = require('./routes/messages');
 const headingRoutes = require('./routes/headings');
 const orderRoutes = require('./routes/orders');
+const priceRoutes = require('./routes/prices'); // New
+const receiptRoutes = require('./routes/receipts'); // New
 
 const app = express();
 const server = http.createServer(app);
@@ -36,13 +38,22 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Add io to req object for controllers
+app.use((req, res, next) => {
+  req.io = io;
+  next();
+});
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/groups', groupRoutes);
 app.use('/api/groups', messageRoutes);
 app.use('/api/groups', headingRoutes);
 app.use('/api/headings', orderRoutes);
-app.use('/api/orders', orderRoutes);
+app.use('/api/items', priceRoutes); // New
+app.use('/api/headings', receiptRoutes); // New
+app.use('/api/receipts', receiptRoutes); // New
+
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'SmartSplit API is running' });

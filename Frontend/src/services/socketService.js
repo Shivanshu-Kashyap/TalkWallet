@@ -1,6 +1,11 @@
 import { io } from 'socket.io-client';
 import { store } from '../store';
-import { addMessage, setActiveHeading } from '../store/slices/messageSlice';
+import { 
+  addMessage, 
+  setActiveHeading, 
+  addOrderItems,
+  updateOrderItem // Add this action to messageSlice
+} from '../store/slices/messageSlice';
 import toast from 'react-hot-toast';
 
 class SocketService {
@@ -35,6 +40,45 @@ class SocketService {
         heading
       }));
       toast.success(notificationMessage);
+    });
+
+    this.socket.on('order_items_added', ({ headingId, items }) => {
+      console.log('New order items received:', items);
+      store.dispatch(addOrderItems({
+        headingId,
+        items
+      }));
+      
+      if (items.length > 0) {
+        const itemNames = items.map(item => `${item.label} (x${item.quantity})`).join(', ');
+        toast.success(`New order: ${itemNames}`);
+      }
+    });
+
+    // New price and payer events
+    this.socket.on('item_price_updated', ({ orderItem }) => {
+      store.dispatch(updateOrderItem({
+        headingId: orderItem.headingId,
+        orderItem
+      }));
+      toast.success(`Price updated: ₹${orderItem.price}`);
+    });
+
+    this.socket.on('item_payers_updated', ({ orderItem }) => {
+      store.dispatch(updateOrderItem({
+        headingId: orderItem.headingId,
+        orderItem
+      }));
+      const payerNames = orderItem.paidBy.map(p => p.userId.displayName).join(', ');
+      toast.success(`Payers assigned: ${payerNames}`);
+    });
+
+    this.socket.on('receipt_processing_completed', ({ receipt }) => {
+      toast.success('Receipt processed successfully!');
+    });
+
+    this.socket.on('receipt_processing_failed', ({ error }) => {
+      toast.error(`Receipt processing failed: ${error}`);
     });
 
     this.socket.on('joined_group', ({ groupId }) => {

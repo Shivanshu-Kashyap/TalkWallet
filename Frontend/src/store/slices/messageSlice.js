@@ -57,6 +57,17 @@ const messageSlice = createSlice({
       state.loading = action.payload;
     }
   },
+  updateOrderItem: (state, action) => {
+  const { headingId, orderItem } = action.payload;
+  if (state.orderItems[headingId]) {
+    const index = state.orderItems[headingId].findIndex(
+      item => item._id === orderItem._id
+    );
+    if (index !== -1) {
+      state.orderItems[headingId][index] = orderItem;
+    }
+  }
+},
 });
 
 export const {
@@ -67,6 +78,7 @@ export const {
   setOrderItems,
   addOrderItems,
   removeOrderItem,
+  updateOrderItem,
   setLoading
 } = messageSlice.actions;
 export default messageSlice.reducer;
