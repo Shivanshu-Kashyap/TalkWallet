@@ -1,6 +1,6 @@
 import { io } from 'socket.io-client';
 import { store } from '../store';
-import { addMessage, setActiveHeading } from '../store/slices/messageSlice';
+import { addMessage, setActiveHeading, addOrderItems } from '../store/slices/messageSlice';
 import toast from 'react-hot-toast';
 
 class SocketService {
@@ -35,6 +35,21 @@ class SocketService {
         heading
       }));
       toast.success(notificationMessage);
+    });
+
+    // New: Handle order items added
+    this.socket.on('order_items_added', ({ headingId, items }) => {
+      console.log('New order items received:', items);
+      store.dispatch(addOrderItems({
+        headingId,
+        items
+      }));
+      
+      // Show toast notification
+      if (items.length > 0) {
+        const itemNames = items.map(item => `${item.label} (x${item.quantity})`).join(', ');
+        toast.success(`New order: ${itemNames}`);
+      }
     });
 
     this.socket.on('joined_group', ({ groupId }) => {

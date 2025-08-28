@@ -3,6 +3,8 @@ const User = require('../models/User');
 const Message = require('../models/Message');
 const Membership = require('../models/Membership');
 const Heading = require('../models/Heading');
+const OrderItem = require('../models/OrderItem');
+const AIExtractionAgent = require('../services/AIExtractionAgent');
 
 const authenticateSocket = async (socket, next) => {
   try {
@@ -49,7 +51,7 @@ const handleConnection = (io, socket) => {
 
   joinUserGroups();
 
-  // Handle sending messages
+  // Handle sending messages with AI extraction
   socket.on('send_message', async (data) => {
     try {
       const { groupId, text } = data;
@@ -87,6 +89,60 @@ const handleConnection = (io, socket) => {
 
       // Broadcast to group
       io.to(`group_${groupId}`).emit('new_message', populatedMessage);
+
+      // Check for active heading and extract orders
+      const activeHeading = await Heading.findOne({ 
+        groupId, 
+        status: 'OPEN' 
+      });
+
+      if (activeHeading) {
+        console.log(`Processing message for active heading: ${activeHeading.title}`);
+        
+        try {
+          const extractedItems = await AIExtractionAgent.extractOrders(text, socket.userId);
+          console.log('Extracted items:', extractedItems);
+
+          if (extractedItems && extractedItems.length > 0) {
+            const newOrderItems = [];
+
+            for (const item of extractedItems) {
+              const newOrderItem = new OrderItem({
+                headingId: activeHeading._id,
+                requestedBy: socket.userId,
+                label: item.label,
+                quantity: item.quantity || 1,
+                options: item.options || [],
+                rawTextMessage: text,
+              });
+
+              await newOrderItem.save();
+              activeHeading.items.push(newOrderItem._id);
+              
+              // Populate for broadcasting
+              const populatedItem = await OrderItem.findById(newOrderItem._id)
+                .populate('requestedBy', 'displayName')
+                .lean();
+
+              newOrderItems.push(populatedItem);
+            }
+
+            await activeHeading.save();
+
+            // Broadcast all new items to the group
+            io.to(`group_${groupId}`).emit('order_items_added', {
+              headingId: activeHeading._id,
+              items: newOrderItems
+            });
+
+            console.log(`Broadcasted ${newOrderItems.length} new order items`);
+          }
+        } catch (aiError) {
+          console.error('AI extraction error:', aiError);
+          // Continue without AI extraction if it fails
+        }
+      }
+
     } catch (error) {
       console.error('Send message error:', error);
       socket.emit('error', { message: 'Failed to send message' });
@@ -119,7 +175,6 @@ const handleConnection = (io, socket) => {
     try {
       const { groupId, headingId } = data;
 
-      // Verify heading exists and user has access
       const heading = await Heading.findOne({
         _id: headingId,
         groupId,
@@ -142,7 +197,6 @@ const handleConnection = (io, socket) => {
         return;
       }
 
-      // Broadcast to group
       io.to(`group_${groupId}`).emit('heading_opened', {
         heading,
         message: `${socket.user.displayName} started a bill-splitting session: "${heading.title}"`

@@ -83,6 +83,20 @@ export const api = createApi({
       query: (groupId) => `/groups/${groupId}/headings/active`,
       providesTags: ['Heading'],
     }),
+
+    // order api
+    getOrderItems: builder.query({
+      query: (headingId) => `/headings/${headingId}/orders`,
+      providesTags: ['OrderItem'],
+    }),
+    deleteOrderItem: builder.mutation({
+      query: (itemId) => ({
+        url: `/orders/${itemId}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['OrderItem'],
+    }),
+
   }),
 });
 
@@ -97,4 +111,6 @@ export const {
   useGetMessagesQuery,
   useCreateHeadingMutation,
   useGetActiveHeadingQuery,
+  useGetOrderItemsQuery,         
+  useDeleteOrderItemMutation,    
 } = api;

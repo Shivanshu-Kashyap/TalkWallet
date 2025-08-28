@@ -21,7 +21,11 @@ const headingSchema = new mongoose.Schema({
     type: String,
     enum: ['OPEN', 'PROCESSING', 'COMPLETED', 'CANCELLED'],
     default: 'OPEN'
-  }
+  },
+  items: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'OrderItem'
+  }]
 }, {
   timestamps: true
 });

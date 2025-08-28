@@ -11,6 +11,7 @@ const authRoutes = require('./routes/auth');
 const groupRoutes = require('./routes/groups');
 const messageRoutes = require('./routes/messages');
 const headingRoutes = require('./routes/headings');
+const orderRoutes = require('./routes/orders');
 
 const app = express();
 const server = http.createServer(app);
@@ -40,7 +41,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/groups', groupRoutes);
 app.use('/api/groups', messageRoutes);
 app.use('/api/groups', headingRoutes);
-
+app.use('/api/headings', orderRoutes);
+app.use('/api/orders', orderRoutes);
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'SmartSplit API is running' });
